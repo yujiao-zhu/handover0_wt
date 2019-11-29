@@ -1,4 +1,6 @@
-##Paper merge
+#Paper merge
 Fixed and Mobile Network convergance journal
 
-seamless handover paper's code, edit through latex
+Coordinate by thn wt zyj
+
+paper's code is edited through latex
