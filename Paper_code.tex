@@ -1,0 +1,1044 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{subfigure}
+\graphicspath{{\figures}}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{verbatim}
+\usepackage{makecell}
+\usepackage{booktabs}
+\usepackage{cite}
+
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+
+\begin{document}
+
+\title{A FAHP and MPTCP Based Seamless Handover Method in Heterogeneous SDN Wireless Networks Wangtao 
+	 \\
+\thanks{
+	This work was supported in part by National Science and Technology Major Project under Grant 2018ZX03001019-003, in part by the National Natural Science Foundation of China under Grant 61671086.
+}
+}
+
+\author{\IEEEauthorblockN{Haonan Tong, Xuanlin Liu, and Changchuan Yin}
+\IEEEauthorblockA{\textit{Beijing Key Laboratory of Network System Architecture and Convergence} \\
+\textit{Beijing University of Posts and Telecommunications, Beijing, China}\\
+ Email: \{hntong, xuanlin.liu, ccyin\} @bupt.edu.cn}
+}
+
+\maketitle
+
+\begin{abstract}
+%	abstract的逻辑有点问题，按照下面这个顺序写
+%	1. 存在什么问题，提出了一个什么样的方法解决
+%	2. 简单概述这个方法用了什么，机制是什么，能够带来什么好处，与现有算法的区别
+%	3. 仿真结果表明***
+	
+%With the popularization of diverse Internet applications, it is a tendency for mobile terminals to run multiple services through heterogeneous wireless networks simultaneously.
+%Network handover method  has great impact on service reliability and continuity.
+% Network handover method has great impact on mobile user experience. 
+%Studided methods has focused on network selection algorithm and handover mechanism so as to improve service reliability and continuity.
+%To improve user experience, this paper proposes a seamless handover method for heterogeneous wireless networks in Software Defined Network (SDN) architecture. 
+%The method requires SDN control plane to periodically collect attributes of wireless networks to evaluate networks. 
+%Considering multiple services have different requirements and users have different preferences, we use Fuzzy Analytic Hierarchy Process (FAHP) and Multi-Path Transmission Control Protocol (MPTCP) to select the most appropriate target network comprehensively and execute seamless handover, respectively.
+%  to select the best target network based on collected network attributes, then  Multi-path transmission control protocol (MPTCP) is applied to assist to operate  handover procedure.
+% Compared to existing methods, the proposed method jointly considers service requirements, user preference and mobility management together for network selection and guarantees service continuity during handover.
+%Simulation results show that the proposed method can accurately select the most appropriate network as target and reduce count of handover so as to increase network  utility and avoid ping-pong effect, respectively.
+%With MPTCP protocol, mobile terminal can maintain at least one subflow in connection to network so as to achieve seamless handover and improve user experience. 
+
+%Simulation results show that the network selection algorithm takes service priority into consideration 
+%as well as increases the network utility and balances the access load. The mobility management mechanism in handover method can avoid ping-pong effect notably.
+
+
+%With the popularization of diverse Internet applications, it is a tendency for mobile terminals to run multiple services through heterogeneous wireless networks simultaneously.
+%Network handover method has a great impact on service reliability and continuity.
+%The popularization of diverse Internet applications and XXX emphasizes  the handover 
+
+% To improve the quality of service while keeping service continuity
+ 
+To solve the problem of vertical handover in heterogeneous wireless networks,
+this paper proposes a seamless handover method for heterogeneous wireless networks based on software defined network (SDN) architecture. 
+The proposed method requires SDN control plane to periodically collect attributes of wireless networks so as to evaluate network performance. 
+Considering varied types of services have different requirements and users have different preferences, fuzzy analytic hierarchy process (FAHP) and multi-path transmission control protocol (MPTCP) are applied to select the most appropriate target network and execute seamless handover, respectively.
+Compared to existing methods, the proposed method jointly considers service requirements, user preferences, and mobility management for network selection and guarantees service continuity during vertical handover.
+Simulation results show that the proposed method makes a comprehensive decision on network selection. In terms of handover times, the proposed method achieves up to 17.4\% and 4.5\% reduction compared to received signal strength based algorithm and fuzzy multiple criteria group decision making based algorithm, respectively. The proposed method also maintains at least one subflow connected during the handover process and achieves seamless handover.
+
+
+
+% Simulation results show that the utility of network selected by FAHP based algorithm is more stable and higher than  existing algorithms.
+%improve the quality of experience (QoE) while satisfies quality of service (QoS) compared to existing algorithms.
+% by selecting the most appropriate network as the target network. 
+%The number of handover times decreases by 17.4\% and 4.5\% compared to received signal strength based algorithm and fuzzy multiple criteria group decision making based algorithm, respectively.
+% MPTCP based handover mechanism achieves true seamless handover with subflow control. 
+%20\% compared to state-of-art network selection algorithm.  
+%Simulation results show that the proposed method can accurately select the most appropriate network as target and reduce the frequency of vertical handover so as to increase network utility and avoid ping-pong effect, respectively.
+%With MPTCP protocol, mobile terminals can maintain at least one subflow in connection to network and achieve seamless handover. 
+
+	
+\end{abstract}
+%
+%\begin{IEEEkeywords}
+%seamless handover, FAHP, MPTCP, SDN, heterogeneous wireless networks
+%\end{IEEEkeywords}
+
+\section{Introduction}
+%%  环境中  普遍在使用多服务  多模终端， 切换影响用户服务质量 
+
+\begin{comment}
+	Introduction按照这个思路写
+	第一段：交代背景，引出问题（网络选择和网络切换？）
+	然后把两个问题分两段进行literature review，一段说SDN，一段说选择切换，分析现有算法/应用是啥啥啥，然后不足是啥，再引出你要用的方法
+	然后单独拿出一段说你的贡献，比方说是提出了结合FAHP和MPTCP的结构，分析了这个方法的***，仿真结果表明***
+	最后是the rest of papercontent...
+\end{comment}
+With the generalization of mobile terminals and diversification of Internet applications,
+mobile multiservice multimode terminals (MMT) on which runs multiple services simultaneously will be more widespread in future wireless networks~\cite{MECsurvey,Cacheinsky}.  
+However, single-structured wireless networks cannot satisfy the requirements of multiple services.
+For example, voice service requires low delay while video service is sensitive to network bandwidth and jitter, web browsing service needs low packet loss, etc.
+As the performance for different requirements differs among diverse networks,
+heterogeneous wireless networks (HWN) are a promising approach to satisfy manifold requirements for multiple services\cite{het}. 
+However, network handover in HWN is still an inevitable issue and faces many challenges, such as network selection and service continuity guarantee.
+%This calls for the existence of heterogeneous wireless networks (HWN) with different characters to ensure the quality of user experience.
+
+
+
+
+%On the one hand, network selection needs to satisfy varied service requirements of different kinds of services.    And different service has different requirement to network.For example, voice service requires low delay while video service is sensitive to network bandwidth and jitter, web browsing needs low packet loss. On the other hand, handover  mechanism directly influences the effectiveness and reliability of wireless network. In order to improve network handover performance, a multi-path transmission protocol (MPTCP) at the transport layer is used in~\cite{acmmptcp}. During the handover process, mobile device uses multiple subflows for data transmission and maintians at least one subflow to transmit data  achieves a seamless handover. 
+
+%Network selection has the problems of comprehensiveness and decision delay.
+%Consider an MMT in HWN, different service has different requirements to network. For example, voice service requires low delay while video service is sensitive to network bandwidth and jitter, web browsing needs low packet loss.
+
+The existing literature~\cite{MCGDM,Utility-GDM,select,tutorial} has studied the network selection problem in HWN considering service requirements and user preference.
+The work in~\cite{tutorial} discussed using neural networks to solve the network selection problem.
+In~\cite{MCGDM}, the authors proposed a network selection algorithm called fuzzy multiple criteria group decision making that considers user preference.
+The work in~\cite{Utility-GDM} proposed a utility based group decision making algorithm taking into account service requirements.  
+%In~\cite{MCGDM} and~\cite{Utility-GDM}, the authors proposed network selection algorithms fuzzy MCGDM and Utility-GDM that only consider user preference or service requirements, respectively. 
+The authors in~\cite{select} proposed a comprehensive network selection algorithm based on fuzzy analytic hierarchy process (FAHP) which satisfies both user preference and service priority. 
+However, most existing works~\cite{MCGDM,Utility-GDM,select} on network selection for multiple services deploy the handover decision on the MMT. This mechanism ignores the influence that user mobility takes to network handover, and complex calculations can also lead to large handover delay.  
+Therefore, there is a need to perceive user mobility and calculate the target network with high speed computation. 
+To this end, the work in~\cite{2interface}  applied software defined network (SDN) to support low delay network selection.
+% Software defined network (SDN) can be applied to
+%support low delay network selection~\cite{3GPP}.
+In~\cite{speedup}, SDN control plane is deployed to collect real-time network attributes and mobility information to calculate the target network, thus reducing unnecessary handover and decreasing the handover delay.   
+ 
+% However, this leads to a too subjective or rational decision. 
+%Nevertheless, it has too large time complexity and is executed on the terminal, which leads to large handover delay.
+
+% For multiple services circumstances, many algorithms only consider one perspective such as user preference~\cite{MCGDM} or service requirement~\cite{Utility-GDM}, which leads to a too subjective or rational decision. 
+
+%Software defined network (SDN) is widely applied to support low delay network selection determination.
+%In SDN architecture, real-time network attributes and user mobility information can be collected to control plane and be computed for MMT's network selection~\cite{3GPP}. 
+%In~\cite{speedup}, the SDN controller is deployed to collect information from both users and base stations to select network in advance, thus decrease handover time.
+%The author in~\cite{2interface} proposed a handover scheme based on SDN. Using two network interfaces, the throughput is increased and handover delay is reduced. 
+
+The use of multi-path transmission control protocol (MPTCP) for handover was studied in~\cite{acmmptcp, phone,MPTCP, Tsinghua}. 
+Generally, vertical handover in HWN suffers from short-time service interruption.
+%service disruption for a while in HWN.    
+MPTCP is a new transport layer protocol that can guarantee service continuity during handover by using multiple paths for data transmission~\cite{acmmptcp}.
+Mobile devices, such as Samsung Galaxy S6 and Apple iPhone 7 have begun to support MPTCP so as to increase traffic throughput~\cite{phone}. 
+%According to to, Samsung Galaxy S6 and Apple iOS 7 mobile operating system have begun to support MPTCP protocol and the experiment result shows its ability to increase traffic throughput~\cite{phone}.
+In~\cite{MPTCP}, the authors discussed MPTCP as a potential solution to address handoff-related and mobility-related service continuity issues.
+% MPTCP is a new transport layer protocol with complete data flow management mechanism using multiple paths for data transmission. 
+The work in~\cite{Tsinghua} proposed a seamless handover mechanism in SDN architecture using MPTCP, where mobile devices can maintain at least one subflow connected thus achieving seamless handover. 
+Considering the ability to adapt to dynamic link change, MPTCP can be applied in multiservice scenarios for service continuity. 
+
+%  However, none of these works~\cite{phone, MPTCP, Tsinghua} analyzed the potential of using MPTCP in multiple services scenario. 
+
+%\color{black}
+%However, these work didn't consider vertical handover in HWN.
+%In SDN architecture, network selection calculation can be executed on network side~~\cite{3GPP} which has enough calculate capability.
+% This method can ensure quality of service (QoS) and balance network access load rationally.   
+%Until now, 
+%much research work has been done on network selection. 
+% there has been many mature agorithms for HWN network selection problem such as fuzzy logic and neural network based methods ~\cite{select12}~\cite{select13}, but these only consider one type of service requirement.  
+%Many network selection algorithms only consider a single service in HWN ~~\cite{select12}~~\cite{select13}, but not consider multiservice's different requirement for MMT network selection. 
+%As for  network selection for multiservice, many algorithms only consider one perspective such as user preference~\cite{MCGDM} or service requirement~\cite{Utility-GDM}, which leads to too subjective or rational decision. 
+%The work in~\cite{select} proposed a comprehensive network selection algorithm based on fuzzy analytic hierarchical process (FAHP) which satisfies both user preference and service priority. Nevertheless, it has too large time complexity   and is executed on terminal, which leads to handover delay.
+
+%~~\cite{speedup} proposed a handover cell selection scheme through SDN and reduce handover delay efficiently.
+%~~\cite{2interface} proposed a handoff method on SDN and reduced the handover delay.
+
+
+In this paper, we focus on multiservice network selection and subsequent handover mechanism in SDN based HWN.
+To reduce the handover delay and achieve mobility management, the network selection decision process is deployed on SDN control plane, and MPTCP is applied to guarantee service continuity during handover.
+The key contributions of this paper are summarized as follows: 
+\begin{itemize}
+	\item 
+	An HWN model is proposed based on SDN architecture. 
+	SDN control plane is deployed to periodically collect real-time network attributes and user mobility information for handover decisions in HWN. The control plane uses collected information to select the best network then execute handover mechanism. 
+	\item A FAHP and MPTCP based seamless handover method in HWN is proposed for multiple services scenario. 
+	The FAHP based network selection algorithm makes a comprehensive decision considering service requirements and user preferences.
+	MPTCP based handover mechanism is applied to ensure service continuity during handover.
+	\item Simulation results show that the proposed method makes a comprehensive decision on network selection, achieves  17.4\% and 4.5\% reduction of handover times compared to received signal strength based algorithm and fuzzy multiple criteria group decision making based algorithm.
+	The proposed method also achieves seamless handover.
+	
+
+	%Simulation results show that the proposed  method 	improves QoE while satisfies QoS, reduces the number of unnecessary handover achieves seamless handover.
+%	  the quality of service, reduces the number of unnecessary handovers and achieves seamless handover. 
+\end{itemize}
+%(1)  (2)  (3) An MPTCP based handover mechanism is applied to ensure service continuity during handover. (4) Simulation results show that the proposed seamless handover method improves the quality of service, reduces the number of unnecessary handovers and achieves seamless handover. 
+  
+%We propose a seamless handover method in software defined HWN and set FAHP based network selection algorithm on SDN control plane, in which user mobility management is enabled by SDN, then MPTCP is applied to realize seamless handover. 
+
+The rest of this paper is organized as follows. 
+The system model and problem formulation are described in Section II. 
+The seamless handover method is proposed in Section III.
+In Section IV, numerical simulation results are presented and analyzed.
+The conclusion is drawn in Section V.
+
+
+
+
+
+
+
+%% 5G的提出 软件定义网络的架构优势 ，重构网络传输，  可以搜集 更新的数据  移动与接入管理单元 ， 并且 论文xxx 提出了基于SDN的实验切换策略
+
+%%  多种服务
+
+
+
+\begin{comment}
+	
+	\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=0.45\textwidth,height = 0.25\textwidth,bb= 10 0 650 450]{figures/sdn.pdf}
+	\caption{SDN Network Architecture.  }
+	\label{fig:sdn}
+	\vspace{-1em}
+	\end{figure}
+	content...
+\end{comment}
+
+
+
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=0.36\textwidth,height = 0.26\textwidth,bb= 50 50 520 480]{figures/HWN1.pdf}
+	\caption{SDN based heterogeneous  wireless networks.}\label{fig:HWN}
+	\vspace{-1em}
+\end{figure}
+
+
+\section{System Model and Problem Formulation}
+%%  utility GDM only 只考虑了 服务的特性 
+%%  MCGDM 提出了基于 用户偏好的 网络选择算法
+%%  19 access 提出了 comprehensive 的网络选择算法但是 需要在终端处理   延迟大
+
+%%  虚拟端口
+%%  MPTCP 实现 无缝切换
+
+
+%\subsection{SDN tecture}
+
+%SDN is designed to implement network virtualization, which separates data and control plane and provide network programming capbality. 
+%Controller in control plane can monitor network situation and control data flow's  routing through Openflow switches as Fig. \ref{fig:sdn} shows.    
+%In ~~\cite{3GPP}, 3GPP standardizes 5G network to use Access and Mobility Management Function (AMF) in control plane to perceive user mobility.
+%In SDN architecture network control plane has the ability to periodically collect information from networks and MMT, using these collected information, AMF can operate the network selection calculation at the network side then send MMT the target network signal message, which is an effective way to reduce the handover decision delay. 
+% The architecture of SDN can be shown as Fig.~\ref{fig:HWN}.
+Consider an SDN based heterogeneous wireless network is shown in Fig.~\ref{fig:HWN}. SDN separates network architecture into the control plane and data plane.
+%In the network control plane, the network controller can monitor network conditions and control data flow routing through Openflow switches in data plane.
+In~\cite{3GPP}, the control plane is standardized to own access and mobility management function (AMF) and
+%In~\cite{3GPP}, 3GPP standardizes 5G network with access and mobility management function (AMF) in control plane to perceive user mobility. 
+can periodically collect information from both networks and MMTs~\cite{speedup}. Using the collected information, 
+the network control plane can run the network selection algorithm at the network side and instruct MMTs to hand over to the target network afterward.
+Besides, 3GPP defines complete functions in SDN to support MPTCP, which promotes the MMTs to adapt to the dynamic connection during handover.   
+ 
+The SDN based heterogeneous wireless networks consist of $M$ candidate networks, which are denoted by a set $\mathcal{R} =\left\{ {r}_1,\ldots ,r_{ M} \right\}$. The MMTs in the  network can associate with any candidate network and run a set $\mathcal{S}=\left\{s_1,\ldots,s_{Y} \right\}$  of $Y$ types of services.
+%Consider an MMT is located in heterogeneous SDN networks shown as Fig. \ref{fig:HWN} and can associate with anyone of them. The network selection problem can be described as follows: 
+%Consider a   MMT is located in heterogeneous SDN networks consisting of UMTS, LTE, WLAN, WiMAX and can associate to any one of the networks as shown in  Fig. \ref{fig:HWN}. The network selection problem can be described as follows: 
+%Given the candidate network set as $\mathcal{R} =\left\{ {r}_1,\ldots ,r_{ M} \right\}, M\geq 2$ , 
+%$R =\left\{ r_1,\ldots ,r_{ M} \right\}, M\geq 2 $, where 
+\begin{comment}   
+	\label{equ01}
+	 R=\left\{ r_1,\ldots ,r_{ M} \right\}, M\geq 2 ,
+\end{comment}
+% $M$ indicates the number of networks. Assume that there are $Y$ types of service running on the MMT, and the service set is given as $\mathcal{S}=\left\{s_1,\ldots,s_{Y} \right\}, Y \geq 1$.
+In the proposed model, different services have distinguished requirements.  
+  The set of network attributes considered of network selection decision is given by $\mathcal{C}=\left\{c_1,\ldots,c_N\right\}$, where $N$ is the number of considered network attributes. 
+\begin{comment}   
+	\begin{equation}   
+	\label{equ02}
+	S=\left\{s_1,\ldots,s_{Y} \right\}, Y \geq 1,
+	\end{equation}
+	\begin{equation}   
+	\label{equ03}
+	C=\left\{c_1,\ldots,c_N\right\}, N \geq 2,
+	\end{equation}
+\end{comment}	
+Let $\boldsymbol{W}_{g} = [w^1_{g}, w^2_{g},\dots w^N_{g} ]$  be the weight vector of  network attributes, where $ w^j_{g} $ represents the weight  of attribute $c_{j}$ for service $s_{g}$. The service priority vector is given by $ \boldsymbol{P} =  [p_{1},p_{2},\dots,p_{Y}] $ , where $p_g$ represents the priority of service $s_g$.
+%indicates the degree of priority of each service in service set $S$.  $j$ and $g$ are indexes of network attributes and service respectively which evaluate in the range in
+%$j = 1,\dots,N $ and $g = 1,\dots ,Y$.
+%$1\le j\le N $ and $1\le g\le Y$.
+%Let $W_{g}=\left\{ w^j_{g} \right\}$ be the set of
+%Set $P = \left\{ p_{g} \right\}$ indicates the degree of priority of each service in service set $S$. In all the description above, $g$ and $j$ are evaluated in the range  
+%$\left\{ 1,\ldots ,Y \right\}  $ and $\left\{ 1,\ldots ,N \right\}  $ respectively.
+Given the collected network attributes $\boldsymbol{M}^t$ defined as follows: 
+\begin{equation}   
+\label{equ05}
+\boldsymbol{M}^t = {({m_{ij}})_{M \times N}}  ,
+\end{equation}
+where $ m_{ij}$ indicates the detected value of network $r_i$ for attribute $c_j$. 
+ $\boldsymbol{U}^i_g = \left[ {u_g^{i,1},u_g^{i,2}, \ldots ,u_g^{i,N}} \right]$ denotes the normalized attribute utility  value vector of the $i$-th row in $\boldsymbol{M}^t$ normalized by utility functions.
+To evaluate the network performance, the network synthetic score is introduced in~\cite{select} and given by: 
+ \begin{equation}   
+ \label{equ04}
+ {S_i} = \sum_{g = 1}^Y {{p_g}}  \cdot \boldsymbol{W}_g \cdot {\boldsymbol{U}_g^i}^T,
+ \end{equation}
+where $S_i$ represents the synthetic score of network $r_i$. 
+The attribute utility vector ${\boldsymbol{U}}^{i}_{g}$ 
+weighted by $\boldsymbol{W}_g$ indicates the assessment of network for the requirement of $s_g$, then the assessments are weighted by service priority to take into account user preferences.
+The normalization functions and derivation of the synthetic score will be discussed in detail in Section III.
+%The  synthetic score of network $r_i$ is defined as follows:
+
+
+ % synthetic score $S_i$ of candidate network $r_i$ is introduced in~\cite{select}, which is given by~\cite{select}. $S_i$ is defined as follows:
+%let $S_i$  represents the synthetic score of network $r_i$ that take into account  service requirements, user preferences. $S_i$ is defined as follows.
+%where $\boldsymbol{U_g} = \left[ {u_g^1,u_g^2, \ldots ,u_g^N} \right]$ %$g = 1,\dots ,Y$,
+%   indicates the attribute utility vector for service $s_g$ and is calculated by collected network attributes $M^t$. 
+%   The synthetic score is the assessment of network performance while network attributes satisfy user preferences.
+    
+
+\begin{comment}
+	The attribute utility vector $U_g $ of network $r_i$ can be calculated by $M^t$,
+	To evaluate network performance, let $S_i$  represents the synthetic score of network $r_i$ that take into account  service requirements, user preference. $S_i$ is defined as follows.
+	\begin{equation}   
+	\label{equ041}
+	{S_i} = \sum\nolimits_{g = 1}^Y {{p_g}}  \cdot W_g \cdot {U^T_g},
+	\end{equation}
+	Where ${U_g} = \left[ {u_g^1,u_g^2, \ldots ,u_g^N} \right]$, $g = 1,\dots ,Y$,   indicates the attribute utility vector for service $s_g$ and is calculated by collected network attributes $M^t$ defined as follows. 
+	\begin{equation}   
+	\label{equ051}
+	{M^t} = {({m_{ij}})_{M \times N}}  ,
+	\end{equation}
+	In which $ m_{ij}$ indicates the attribute $c_j$  detected value of network $r_i$content...
+\end{comment} 
+
+%Let the  icv nto consideration takes service requirements, user preference and mobility  
+
+The purpose of our problem is to find out the best network $r_t$ with the highest synthetic score $S_t$ as the target network for handover. After the network selection, MPTCP is applied to execute seamless  handover between candidate networks.   
+
+
+%The purpose of network selection process is to find out the best network $r_t$ with highest synthetic score  Afterwards the network selection process, MPTCP protocal was applied to operate seamless handover between heterogeneous network. 
+
+\begin{comment}
+	\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=0.4\textwidth,height = 0.25\textwidth,bb= 10 0 800 500]{figures/algorithmframe1.pdf}
+	\caption{Network selection algorithm framework.}\label{fig:algorithmframe1}
+	\vspace{-1em}
+	\end{figure}content...
+\end{comment}
+
+
+
+\section{Seamless handover method }
+To solve the problem of vertical handover in SDN based heterogeneous wireless networks, in this paper, we propose a seamless handover method based on FAHP and MPTCP. Compared to existing network selection algorithms, FAHP based network selection algorithm takes into account service requirements, user preferences, and mobility management. Moreover, MPTCP based handover mechanism can maintain service continuity during handover. Next, we first introduce the detail of FAHP based network selection algorithm then discuss the mechanism for MPTCP to achieve seamless handover.
+%In SDN wireless networks architecture, network selection scheme can be applied on network control plane to reduce decision delay. FAHP enables a comprehensive decision to satisfy both user and service requirements. MPTCP is efficient to realize seamless handover. 
+% On these basis, we proposed a seamless handover method that can be regraded as to has two stages. In the handover decision stage, we use FAHP to take networks' condition, mobile terminal's information and user-specificed service priority into consideration. In the handover operation stage, we use MPTCP protocol to ensure the packet flow uninterrupted during network handover.
+
+
+\begin{comment}
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=0.45\textwidth,height = 0.25\textwidth,bb= 50 50 420 314]{figures/HWN.png}
+	\caption{Herterogeneous wireless networks environment.}\label{fig:HWN1}
+	\vspace{-1em}
+\end{figure}
+\end{comment}
+
+
+\begin{comment}
+${P_l}\left( \gamma  \right)$ 
+\begin{equation}
+\label{}
+{P_2}\left( \gamma  \right):\mathop {minimize}\limits_{{\bf{v}} \in \nu } {\sum\limits_{l = 1}^L {{\omega _l}\left\| {\widetilde {{{\bf{v}}_l}}} \right\|} _2}
+\end{equation}
+\end{comment}
+
+
+
+%\subsection{System Architecture}\label{AA}
+
+
+
+
+% network attribute $C$ and it's weight $W$ ,  $P$ is the degree of each service priority. 
+
+
+%calculate the best network with highest utility value as the target network.
+
+	
+%	\begin{equation}
+%	R=\left\{ r_1,\ldots ,r_{\left| R\right|} \right\},\quad R\geq 2
+%	\end{equation}
+%	\begin{equation}
+%	S=\left\{s_1,\ldots,s_{\left|S\right|} \right\},\quad S\geq 1
+%	\end{equation}
+%	\begin{equation}
+%	C=\left\{c_1,\ldots,c_N\right\},\quad N\geq 1
+%	\end{equation}
+%	\begin{equation}
+%	W =\left\lbrace w^j_g \right\rbrace 
+%	\end{equation}
+%	\begin{equation}
+%	P =\left\{ P_g   \right\}
+%	\end{equation}
+
+
+
+
+\subsection{FAHP Based Network Selection Algorithm}
+
+FAHP is proposed by van Laarhoven and Pedrycz to deal with uncertainty in decision making problem~\cite{FAHP}. FAHP considers fuzziness among decision criteria by introducing fuzzy number. The fuzzy number indicates the relative importance between pairwise decision criteria, thus the decision making problem can be transformed into hierarchies with fuzzy numbers. 
+Combining FAHP with user-specific service priority, network selection algorithm can make comprehensive decision considering both service requirements and user preferences.
+
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width = 0.4\textwidth,height = 0.21\textwidth]{figures/algorithmframe.eps}
+	\caption{Network selection algorithm framework.}\label{fig:algorithmframe}
+	\vspace{-1em}
+\end{figure}
+
+The framework of FAHP based network selection algorithm is shown in Fig. \ref{fig:algorithmframe}. 
+In the framework, service priority indicates user preferences for different services and can be specified by users.
+ Taking the service characteristics into consideration, fuzzy decision matrices of diverse services are different. 
+ Attribute weight $w_g^j$ are calculated from fuzzy decision matrices and indicate the absolute importance of attribute $c_j$ for service $s_{g}$, which can be stored at SDN control plane.
+ %Calculated from fuzzy decision matrices, attribute weights indicate the absolute importance of attribute $c_j$ for service $s_{g}$, and it can be stored at network control plane.
+% 描述  不同业务对于网络的属性需求不同
+%Concretely, the voice service have higher requirement on cost, delay and jitter, but are not sensitive to the packet loss rate. Streaming service like video transimssion requires high bandwidth, little jitter, low price and packet loss but latency is more tolerable. As for web browsing service, the packet loss rate has the highest priority and latency, while jitter is not so important. 
+Attribute utility functions are applied to normalize the network attributes, so the network attribute utility is limited between 0 and 1.
+% The synthetic network score can be obtained through attribute weight multiplied by normalized attribute  and then weighted by service priority.
+Then the SDN control plane selects the network with the highest synthetic score~(\ref{equ04}) as the target network and instructs MMTs to hand over to the target network with control signaling.
+%send MMT corresponding handover signal message to instruct handover.
+
+FAHP is applied to calculate the attribute weights $\boldsymbol{W}_g$. In this paper, we use the triangular fuzzy number (TFN) as the fuzzy number to represent relative importance between pairwise attributes. The TFN is defined as $\mu = (l,m,u), l \le m \le u$, where $l, m, u$ represent the lower limit value, the most favorable value, and the upper limit value, respectively. The correspondence between the relative importance of the attributes and TFN value is shown in Table \ref{tab1}. 
+
+
+%TFN fuzzes the input value $x$ as follows:
+\begin{comment}
+	\begin{equation}   
+	\label{equ1}
+	\mu (x) = \left\{ \begin{array}{l}
+	\frac{{x - l}}{{m - l}}\;\;,\;l \le x \le m  ,\\
+	\frac{{u - x}}{{u - m}}\;\;,m \le x \le u    ,\\
+	0\;\;\;\;\;\;\;\;,\rm otherwise     .
+	\end{array} \right. 
+	\end{equation}content...
+\end{comment}
+%For further calculation, we first define the basic operations of TFN. 
+Given $\mu_1=(l_1,m_1,u_1)$, $\mu_2=(l_2,m_2,u_2)$, 
+The summation, multiplication, and reciprocal are defined as follows:
+%Accordingly, the basic operation of TFN can be defined as follows:  Given $\mu_1=(l_1,m_1,u_1)$, $\mu_2=(l_2,m_2,u_2)$,
+\begin{equation}   
+\label{equ2}
+{\mu _1} + {\mu _2}{\rm{ = }}\left( {{l_1} + {l_2},{m_1} + {m_2},{u_1} + {u_2}} \right) ,
+\end{equation}
+\begin{equation}   
+\label{equ3}
+{\mu _1} \otimes {\mu _2}{\rm{ = }}\left( {{l_1} \times {l_2},{m_1} \times {m_2},{u_1} \times {u_2}} \right) ,
+\end{equation}
+\begin{equation}   
+\label{equ4}
+\frac{1}{{{\mu _1}}}{\rm{ = }}\left( {\frac{1}{{{u_1}}},\frac{1}{{{m_1}}},\frac{1}{{{l_1}}}} \right)  .
+\end{equation}
+% TFNs represent the relative importance of pairwise decision criteria,and each criteria's absolute weight can be calculated through FAHP.
+ % FAHP integates these relative importance  and can calculate  based on service requirements. 
+% The process to calculate service-specfic weight of each network attribute can be described as following 5 steps:
+%Step 1: Transform the network selection problem into a hierarchy structure. The hierarchy has three layers, scheme layer, criterion layer and target layer. Scheme layer consists of each candidate network. Criterion layer includes 6 network attributes as decision criteria that is received signal strength, bandwidth, delay, jitter, packet loss rate and cost. Target layer is to select the best network.
+%Step 2: Accroding to criterion layer, construct a fuzzy decision matrix $A^g$ for service $s_g$. Let $N$ be the number of network attributes, $A^g$ consists of TFNs can be shown as: 
+  In this paper, we take into account 6 network attributes for network selection that is received signal strength (RRS), bandwidth, delay, jitter, packet loss rate, and cost. 
+ %$A^g$ is.
+ Let $N$ be the number of network attributes, the fuzzy decision matrix   $\boldsymbol{A}^g$ for service $s_g$ consists of TFNs can be shown as $\boldsymbol{A}^g = {({\mu _{ij}})_{N \times N}}   $.
+
+
+
+
+
+
+\begin{comment}   
+\label{equ5}
+\boldsymbol{A}^g = {({\mu _{ij}})_{N \times N}}   .
+\end{comment}   
+
+
+As $\mu _{ij}$ represents the relative importance of attribute $c_i$ compared with $c_j$, it should hold consistency when compare $c_j$ with $c_i$, that is when $i \ne j$, $\mu_{ji} = 1 / \mu_{ij}$ and $\mu_{ii}=(1,1,3)$, $i,j=1\dots N$. 
+ To ensure the consistency of the fuzzy decision matrix $\boldsymbol{A}^g$, FAHP introduces comprehensive fuzzy value $F_i$ of attribute $c_i$ to obtain its weight $w_g^i$.
+$F_i$ is calculated as follows:
+\begin{equation}   
+\label{equ6}
+{F_i} = \sum\limits_{j = 1}^n {{\mu _{ij}}}  \otimes {\left[ {\sum\limits_{i = 1}^n {\sum\limits_{j = 1}^n {{\mu _{ij}}} } } \right]^{ - 1}}    .
+\end{equation}  
+%where ${\left[ {\sum\limits_{i = 1}^n {\sum\limits_{j = 1}^n {{\mu _{ij}}} } } \right]^{ - 1}} =\\
+% \left( {\frac{1}{{\sum\nolimits_{i = 1}^n {\sum\nolimits_{j = 1}^n {{u_{ij}}} } }},\frac{1}{{\sum\nolimits_{i = 1}^n {\sum\nolimits_{j = 1}^n {{m_{ij}}} } }},\frac{1}{{\sum\nolimits_{i = 1}^n {\sum\nolimits_{j = 1}^n {{l_{ij}}} } }}} \right)$.\\
+Calculate the probability $V({F_j} \ge {F_i})$ which represents $F_j$ is larger than $F_i$ as follows: 
+%Where $F_j$ and $F_i$ are the comprehensive fuzzy value of attributes $c_j$ and $c_i$ respectively. $V({F_j} \ge {F_i})$ is defined as:
+
+
+
+
+\begin{equation}   
+\label{equ7}
+V({F_j} \ge {F_i}) = \left\{ \begin{array}{l}
+1\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;,{m_j} \ge {m_i},\\
+\frac{{({m_j} - {u_j}) - ({m_j} - {l_i})}}{{{l_j} - {u_i}}}\;\;,{m_j} \le {m_i},{l_i} \le {u_j},\\
+0\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;,\rm otherwise.
+\end{array} \right.   
+\end{equation}  
+The weight value ${w^{j'}_g}$ of attribute $c_j$ for service $s_g$ can be defined by (\ref{equ8}) as the minimum probability that $F_j$ is larger than any other $F_i$ .
+
+\begin{equation}   
+\label{equ8}
+\begin{array}{l}
+{w_{g}^{j'}} = \min V({F_j} \ge {F_i}) = \min V({F_j} \ge {F_1},{F_2}, \ldots ,{F_N}),\\
+\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;j = 1, \ldots ,N  ,
+\end{array} 
+\end{equation}  
+Then $w^j_g$ can be normalized by (\ref{equ9}) and satisfy $\sum\nolimits_{j = 1}^n {w_{g}^{j}} {\rm{ = }}1$.  
+\begin{equation}   
+\label{equ9}
+w^j_{g} = \frac{{w_{g}^{j'}}}{{\sum\nolimits_{j = 1}^N {w_{g}^{j'}} }}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} j = 1, \ldots ,N,
+\end{equation} 
+Through the above calculation, the final network attribute weight vector for service $s_g$ is obtained as $\boldsymbol{W}_g = [w_g^1,w_g^2, \ldots ,w_g^N]$.
+
+The network attributes can be divided into benefit attributes and cost attributes. A larger benefit attribute value contributes to a higher network utility and vise versa. 
+%In this paper, received signal strength (RRS) and bandwidth are benefit attributes, the others are cost attributes. 
+% To normalize the network attributes, benefit attributes need a monotonically  increasing function and cost attributes  need a decreasing one. 
+For attributes whose conditions have both lower and upper boundary, sigmoid utility function can be applied for normalization. 
+Specifically, $f(x)$ is used for benefit attribute and $g(x)$ for cost attribute shown as follows:
+
+\begin{equation}   
+\label{equ10}
+f(x) = \frac{1}{{1 + {e^{ - a(x - b)}}}}  ,
+\end{equation}
+\begin{equation}   
+\label{equ11}
+g(x) = 1 - f(x)   ,
+\end{equation}
+where $a$ and $b$ are constant coefficients specified by service requirement for network attributes.
+As for attributes with one boundary, linear and inverse proportional function can fit the attribute elasticity. $u(x)$ is used for benefit attributes and $h(x)$ is used for cost attributes shown as follows:
+\begin{equation}   
+\label{equ12}
+u(x)=1-g/x ,
+\end{equation}
+\begin{equation}   
+\label{equ13}
+h(x) = 1 - g \cdot x  ,
+\end{equation}
+where $g$ is a constant coefficient to be specified according to the service requirement.
+\begin{table}[t]
+	
+	\caption{Importance of TFN value}
+	\begin{center}
+		\begin{tabular}{c c c c}
+			\hline
+			\textbf{No.}&\textbf{Definition}&\textbf{TFN}&\textbf{Reciprocal of TFN} \\
+			\hline
+			\cline{1-4}
+			1 & Equal Importance & (1,1,3) & (1,1,0.33)			\\
+			2 & Intermediate Values & (1,2,4) & (0.25,0.5,1)	\\
+			3 & Moderate Importance & (1,3,5) & (0.2,0.33,1)	\\
+			4 & Intermediate Values & (2,4,6) & (0.17,0.25,0.5)	\\
+			5 & Strong Importance & (3,5,7) & (0.14,0.2,0.33)	\\
+			6 & Intermediate Values & (4,6,8) & (0.125,0.17,0.25)	\\
+			7 & Very Strong Importance & (5,7,9) & (0.11,0.14,0.2)	\\
+			8 & Intermediate Values & (6,8,9) & (0.11, 0.125,0.17)	\\
+			9 & Exterme Importance & (7,9,9) & (0.11,0.11,0.14)		\\
+			\hline
+			
+		\end{tabular}
+		\label{tab1}
+	\end{center}
+\end{table}
+
+
+% 计算  
+\begin{table*}[t]
+	\caption{Qos requirements, utility functions and parameters of multiple services.}
+	\begin{center}
+		\begin{tabular}{c c c c c c c}
+			\hline
+			% problem here
+			\textbf{Service/Attributes}&\textbf{RRS(dBm)}&\textbf{Bandwidth(kbs)}&\textbf{Delay(ms)}&\textbf{Jitter(ms)}&\textbf{Loss Rate(\%)}&\textbf{Cost} \\
+			\hline
+			%\cline{1-4}
+			&-85 $ \sim $ -30 &32 $ \sim $ 64&50 $ \sim $ 100& 50 $ \sim $ 80&$ < $ 30&$ < $ 50   \\
+			Voice&f(x)&f(x)&g(x)&g(x)&h(x)&h(x)          \\
+			&a=0.15,b=-80&a=0.25,b=48&a=0.1,b=75&a=0.185,b=65&g=1/30&g=1/50  \\
+			\hline
+			&-85 $ \sim $ -30 &512 $ \sim $ 5000 &75 $ \sim $ 150&40 $ \sim $ 70&$ < $ 30&$ < $ 50            \\
+			Video&f(x)&f(x)&g(x)&g(x)&h(x)&h(x)          \\
+			&a=0.15,b=-80&a=0.003,b=2000&a=0.1,b=112.5&a=0.175,b=55&g=1/30&g=1/50 \\
+			\hline
+			&-85 $ \sim $ -30 &128 $ \sim $ 1000&250 $ \sim $ 500&10 $ \sim $ 150&$ < $ 30&$ < $ 50        \\
+			Web browsing&f(x)&f(x)&g(x)&g(x)&h(x)&h(x)          \\
+			&a=0.15,b=-80&a=0.01,b=564&a=0.03,b=375&a=0.05,b=80&g=1/30&g=1/50    \\
+			\hline
+		\end{tabular}
+		\label{ufunc}
+	\end{center}
+\end{table*}
+
+
+The raw  network attribute values collected by SDN control plane are constructed in a matrix form shown as (\ref{equ05}).
+		\begin{comment}   
+		\label{equ14}
+		\boldsymbol{M}^t = {({m_{ij}})_{M \times N}}  ,
+		\end{comment}
+%where $M$ is the number of candidate networks and $N$ is the number of considered network attributes, the element $m_{ij}$ of matrix $\boldsymbol{M^t}$ is the collected real-time value of attribute $c_j$ in network $r_i$.
+The utility functions and their coefficients are set diverse among different services shown in Table \ref{ufunc}. 
+Then the network utility vector of service $s_g$ can be calculated from $\boldsymbol{M}^t $ through utility functions as $\boldsymbol{U}^i_g$. % = \left[ {u_g^{i,1},u_g^{i,2}, \ldots ,u_g^{i,N}} \right]$. 
+The synthetic network score combines user-specific priority $p_g$, network attribute utility $\boldsymbol{U}_g^i$ and its weight $\boldsymbol{W}_g$.
+ Given a candidate network set $\mathcal{R}$, the score $S_i$ of the networks $r_i$ is defined as (\ref{equ04}).
+		\begin{comment}   
+		\label{equ15}
+		{S_i} = \sum_{g = 1}^Y {{p_g}}  \cdot \boldsymbol{W}_g \cdot {\boldsymbol{U}_g^i}^T	.
+		\end{comment}
+%where $g=1 \dots Y$, and ${p_g}$ %  \in \mathcal{P} $ 
+%represents the normalized service priority of service $s_g$ specified by users. 
+%and $\sum\nolimits_{g = 1}^Y {{p_g}} {\rm{ = }}1$. 
+The target network is selected with the highest synthetic score to execute handover process. 
+
+If MMT moves actively in a small range of network at a high speed $v$, the handover condition may be triggered frequently which decreases the user experience.
+ As SDN control plane has the capacity to obtain user mobility information, a mobility-related handover mechanism can avoid this effect. Set the handover trigger threshold as follows:
+\begin{equation} 
+\label{equ16} 
+\delta  = 1 + \frac{v + 1}{{(v + \beta)/\alpha  + 1}} ,
+\end{equation}
+ where $\alpha,\beta$ are constant coefficients and the value of $\delta$ increases as $v$ increases. Assume the MMT currently connects to network $r_i$ and its updated score is $S_i$, the target network is $r_t$ and its score is $S_t$. The handover process is set to be triggered only when $S_t/S_i > \delta$ is satisfied.
+
+\begin{table*}[t]
+	
+	\caption{ Fuzzy decision matrix of voice, video and web service~\cite{select}}
+	\begin{center}
+		\setlength{\tabcolsep}{3mm}{
+		\begin{tabular}{c c c c c c c c}
+			\textbf{Voice Matrix}&&&&&&  \\
+			\toprule[2pt]
+			%			\cline{1-7}   %????
+			&\textbf{RSS}&\textbf{Bandwidth}&\textbf{Delay}&\textbf{Jitter}&\textbf{Loss Rate}&\textbf{Cost}& \textbf{Weight} \\
+			\hline
+			RSS & (1,1,3) & (3,5,7) & (0.2,0.33,1)& (1,3,5)& (1,3,5)& (0.25,0.5,1)& 0.1776   \\
+			Bandwidth & (0.14,0.2,0.33) & (1,1,3) & (0.25,0.5,1)& (0.17,0.25,0.5)& (1,2,4)& (0.125,0.17,0.25)& 0.1115  \\
+			Delay & (1,3,5) & (1,2,4) & (1,1,3)& (0.2,0.33,1)& (1,3,5)& (0.14,0.2,0.33)& 0.1605  \\
+			Jitter & (0.2,0.33,1) & (2,4,6) & (1,3,5)& (1,1,3)& (3,5,7)& (0.2,0.33,1)& 0.1834  \\
+			Loss Rate &(0.2,0.33,1)&(0.25,0.5,1)&(0.2,0.33,1)& (0.14,0.2,0.33)& (1,1,3)& (0.11,0.14,2)& 0.0986  \\
+			Cost & (1,2,4)& (4,6,8) & (3,5,7) & (1,3,5)& (5,7,9)& (1,1,3)& 0.2683  \\
+			\hline
+			
+			
+			\textbf{Video Matrix}&&&&&&  \\ 
+			\toprule[2pt]
+			&\textbf{RSS}&\textbf{Bandwidth}&\textbf{Delay}&\textbf{Jitter}&\textbf{Loss Rate}&\textbf{Cost} & \textbf{Weight} \\
+			\hline
+			RSS & (1,1,3) & (0.2,0.33,1) & (3,5,7)& (5,7,9)& (1,3,5)& (1,3,5)& 0.2098   \\
+			Bandwidth & (1,3,5) & (1,1,3) & (1,2,4)& (0.17,0.25,0.5)& (4,6,8)& (4,6,8)& 0.2033  \\
+			Delay & (0.14,0.2,0.33)  & (0.25,0.5,1) & (1,1,3)& (0.14,0.2,0.33)& (1,3,5)& (1,3,5)& 0.1330  \\
+			Jitter & (0.14,0.2,0.33) & (2,4,6) & (3,5,7)& (1,1,3)& (5,7,9)& (5,7,9)& 0.2345  \\
+			Loss Rate &(0.2,0.33,1)&(0.125,0.17,0.25)&(0.2,0.33,1)& (0.11,0.14,0.2)& (1,1,3)& (1,1,3)&  0.1097 \\
+			Cost & (0.2,0.33,1)&(0.125,0.17,0.25)& (0.2,0.33,1)& (0.11,0.14,0.2)& (1,1,3)& (1,1,3)& 0.1097  \\
+			\hline
+			
+			
+			\textbf{Web Matrix}&&&&&&  \\
+			\toprule[2pt]
+			&\textbf{RSS}&\textbf{Bandwidth}&\textbf{Delay}&\textbf{Jitter}&\textbf{Loss Rate}&\textbf{Cost} & \textbf{Weight} \\
+			\hline
+			%\cline{1-2} 
+			RSS & (1,1,3) & (0.2,0.33,1) & (3,5,7)& (3,5,7)& (0.2,0.33,1)& (0.14,0.2,0.33)& 0.1609   \\
+			Bandwidth & (1,3,5) & (1,1,3) & (3,5,7)& (4,6,8)&(0.25,0.5,1) & (1,2,4) & 0.2084  \\
+			Delay & (0.14,0.2,0.33)  & (0.14,0.2,0.33) & (1,1,3)& (1,2,4)& (0.125,0.17,0.25)& (0.17,0.25,0.5) & 0.1076 \\
+			Jitter & (0.14,0.2,0.33) &  (0.125,0.17,0.25)& (0.25,0.5,1)& (1,1,3)& (0.11,0.14,0.2)& (0.14,0.2,0.33)& 0.0897  \\
+			Loss Rate &(1,3,5)&(1,2,4)&(4,6,8)& (5,7,9)& (1,1,3)& (1,3,5) & 0.2428 \\
+			Cost & (3,5,7)&(0.25,0.5,1)& (2,4,6)& (3,5,7)& (0.2,0.33,1)& (1,1,3) & 0.1905 \\
+			\hline
+			%   \multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
+		\end{tabular}
+	}
+		\label{tabdecmtrix}
+	\end{center}
+\end{table*}
+
+\begin{comment} 
+
+\begin{table*}[t]
+	\caption{Network attributes parameters}
+	\begin{center}
+		\begin{tabular}{c c c c c c c}
+			\hline
+			% problem here
+			\textbf{Network}&\textbf{RRS()}&\textbf{Bandwidth(kbps)}&\textbf{Delay(ms)}&\textbf{Jitter(ms)}&\textbf{Loss Rate(\%)}&\textbf{Cost} \\
+			\hline
+			%\cline{1-4}
+			UMTS&-95-56&700-2000&10-50&5-15&2-10&5-35   \\
+			LTE&-95-56&800-4000&40-80&15-40&6-20&10-45   \\
+			WLAN&48-56&1000-8000&70-100&30-70&4-15&0-20  \\
+			WiMAX&-95-56&900-6000&50-90&20-50&8-20&15-50    \\
+			
+			\hline
+		\end{tabular}
+		\label{tabNetParameters}
+	\end{center}
+\end{table*}
+
+\end{comment}
+
+\subsection{MPTCP Based Handover Management Mechanism} 
+
+
+%说明建立  添加机制 
+%Similar to TCP, MPTCP connection is initiated by three-way handshake and both user equipment and server need to support MPTCP. As described in~\cite{MPTCP},  a moblie terminal such as smart phone can equip with a single cellular interface and a WiFi interface, MPTCP can use the $MP \_CAPABLE$ TCP option to establish a connection for cellular interface at first,
+%as for WiFi interface, MPTCP can use $MP\_JOIN$ TCP option for an additional subflow connection.
+
+To ensure reliability when delivering in-order data over multiple subflows. 
+MPTCP configs 
+ data connection level sequence number (DSN), per-subflow sequence number (SSN), and data sequence mapping (DSM) which maps SSN to DSN. 
+The DSN indicates all the transmitted data and each SSN has its own space independent of the DSN. 
+DSM is fixed once declared and is transmitted along with packet segment.
+This ensures the same data in DSN can be mapped repeatedly and re-transmitted on different subflows when one subflow fails. 
+These mechanisms enable a seamless handover in HWN~\cite{MPTCP}.
+
+
+MPTCP prioritizes first-established subflows as master subflow and the following as slave subflows. 
+With added subflow, MPTCP has more subflow policies that can be specified according to implementation. Take three of them for instance, 
+alternate policy uses a second subflow when the master subflow is congested. 
+Backup policy uses salve subflows as backups only if the master subflow fails. 
+And in simultaneous policy, all subflows simultaneously send the same data in case of dynamical connection change. 
+With these subflow polices, mobile users can use multiple subflows interchangeably for communication when comes in or out of the range of a particular network. 
+The ability to simultaneously transmit data through multiple subflows allows for MPTCP connection to maintain available in case of handover.
+
+Assume an MMT like smartphone equipped with a cellular interface and a WiFi interface moves into indoors from outdoors, when the cellular connection reaches an unusable level, the MMT can 
+%, MMT can send a handover request to SDN control plane. Then
+ establish a new subflow through WiFi interface and turn to simultaneous policy to send data through both interfaces until the connection is stable or cellular subflow fails. Then MPTCP switches to alternate policy or backup policy. 
+%Whereas traditional TCP will break and drastically damage user experience in the same situation.
+MPTCP realizes a seamless handover that MMT maintains at least one subflow in connection to the server so that the data transmission is not interrupted during handover.
+
+% MPTCP  无法识别 拥塞与 切换带来的 RRT 增长
+% Due to MPTCP use congestoin window to perceive the link condition, single MPTCP may regarding mobile scene as handover. Which  
+% SDN architecture can collect user's move velocity to assist distinguishing handover condition.
+
+
+
+% 说明 无缝切换的机理
+% 最后说明需要改进的 地方  比如说速度
+
+\section{Performance Analysis and Simulation }
+
+
+To verify the correctness and effectiveness of our proposed handover method, 
+%we set network selection experimental environment shown as Fig. \ref{fig:HWN} and use MATLAB for simulation. 
+we simulated the network selection algorithm and handover mechanism on MATLAB and Mininet tools.
+In our simulation, the MMT can run three types of services i.e.,  voice ($s_1$), video ($s_2$), and web browsing ($s_3$),
+the candidate heterogeneous networks consist of four kinds of networks, i.e., UMTS ($r_1$), LTE ($r_2$), WLAN ($r_3$), and WiMAX ($r_4$). When the MMT is located in the common coverage of all candidate networks, it can associate with anyone of them.
+As for handover execution, we take a handover scenario shown in Fig.~\ref{fig:LTE-WLAN} for instance. Assume the user with an MMT moves into indoors from outdoors, the MMT tends to hand over to indoor WLAN from outdoor LTE due to LTE synthetic score decreases.
+Next, we first show the performance of FAHP based network selection algorithm, then verify the service continuity during handover using MPTCP.
+%We assume a scenaristdoors and tends to handover to indoor WLAN from outdoor LTE, due to 
+
+%Consider there are three service voice ($s_1$), video ($s_2$) and web browsing ($s_3$) running on MMT, the candidate heterogeneous networks consist of four networks: UMTS ($r_1$), LTE ($r_2$), WLAN ($r_3$) and WiMAX ($r_4$). The MMT is located in the common coverage of all networks and can associates to each one of the networks. 
+%As for handover management mechanism, we assume a scenario that an MMT moves into indoor environment from outdoors and tends to handover to indoor WLAN from outdoor LTE, the network location is shown as Fig. \ref{fig:HWN}. 
+% We take two of the networks as representative beacuse the heterogeneous wireless  networks can be viewed as a collection of access networks providing different QoS in terms of transport layer~\cite{MPTCP}. 
+%The experiment is simulated on mininet software. 
+
+
+
+
+\subsection{Network Selection Simulation}
+%%  切换的 概率
+%%%%%  权重矩阵由来   网络属性的取值   服务的优先级  
+%%  切换的次数 无缝切换的次数
+%%  可以增加说明     切换  选择网络的概率与 设定的 service priority 有关
+
+
+%To illustrate the performance of proposed FAHP based network selection algorithm, we set the MMT running three types of service as voice, video and web browsing at the same time. 
+%In our experiment, 
+%the user-specific service priority is fixed as $P=[0.2\; 0.3\; 0.5]$.
+In FAHP based network selection algorithm, the service fuzzy decision matrices are set as Table \ref{tabdecmtrix}. 
+The attribute weights for each service are calculated applying FAHP and shown as the last column in Table \ref{tabdecmtrix}.
+Attribute utility functions for each service is defined in Table~\ref{ufunc}.
+Parameters of mobility threshold is set as $\alpha = 0.4,\beta = 15$.
+We set the network conditions vary over time and satisfy Table.~5 in~\cite{select}, thus the handover condition of an MMT can be triggered. Besides, RSS is obtained according to \cite{RSSList} and obeys the cost 231-hata model \cite{Tsinghua}.
+% to execute network selection algorithm.
+ %  The network attributes take a random condition and satisfy the Table 5. in~\cite{select}.%\ref{tabNetParameters} %Besides, RSS ranges of nerworks is set as $(-90,-75) \rm dBm$ for  
+% Besides, RSS is obtained according to \cite{RSSList} and  obeys the cost 231-hata model \cite{Tsinghua}.    %  这个表要删除 可以直接引用  文献 select 的Table5
+%Our algorithm is evaluated from network selected probability, handover counts and selected network ulitily score.
+ The proposed algorithm is compared with RRS based network selection method and fuzzy multiple criteria group decision making (MCGDM) based network selection algorithm proposed in~\cite{MCGDM} which selects appropriate network for MMT with adequate consideration of user preferences. 
+ % MCGDM is a network selection algorithm that considers user preferences.
+ % during network selection.
+
+
+%	Then we set the network attribute in a uniform distribution which satisfied the Table\ref{tabNetParameters}.
+%   The RSS is calculated by XXXXXXXXXXXXXXX.
+
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=0.45\textwidth, height=0.23\textwidth%height = 0.25\textwidth 
+	]{figures/selectedprob2.eps}
+	\caption{Selected probability for networks with different service priority.}\label{fig:selectedprob}
+	\vspace{-1em}
+\end{figure}
+
+Fig. \ref{fig:selectedprob} shows the selected probability for networks with different service priority. The service priority vector is set as $\boldsymbol{P}_{\rm web}=[0.1\; 0.3 \; 0.6]$ for web browsing preferred scenario, $\boldsymbol{P}_{\rm video}=[0.1 \; 0.6\; 0.3]$ for video preferred scenario, and $\boldsymbol{P}_{\rm voice}=[0.6 \; 0.3\; 0.1]$ for voice preferred scenario. 
+The simulation results are obtained by 1000 times network independent change in each scenario.
+%We simulate 1000 times network variation in each scenario,
+As RSS based method is irrelevant to service,
+% and only tend to select WLAN or LTE with strongest received signal strength, 
+the results of RSS based method is shown in an overall manner on the right side in Fig.~\ref{fig:selectedprob}. As Fig. \ref{fig:selectedprob} shows, both the proposed algorithm and MCGDM can select network according to user preferences. When web or video services are preferred, both algorithms tend to select WLAN for high bandwidth and low packet loss rate. When voice services are of high priority,  
+the probability of selecting UMTS as the target network is higher for its low delay and low jitter.
+ Compared to MCGDM, FAHP based algorithm takes into account service requirements additionally and has more preference for LTE which is consistent with actual network deployment. 
+Moreover, the proposed algorithm has a more balanced probability to select each network
+ which is beneficial for reducing the access load of a single network.
+
+\begin{comment}
+	\color{blue}
+	UMTS is preferred for low delay and little jitter. Compared to MCGDM, our FAHP based algorithm has more preference on LTE than MCGDM, and has more balanced probability to select every network which is benefitial for reducing access load of single network.content...
+\end{comment}
+
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=0.38\textwidth,height=0.22\textwidth, bb = 0 0 380 290
+	]{figures/handovertimes2.eps}
+	\caption{Handover times of different algorithms. }\label{fig:handovernumber}
+	\vspace{-1em}
+\end{figure}
+Fig.~\ref{fig:handovernumber} shows the handover times of different algorithms in web preferred scenario.
+The solid lines indicate the handover times when the MMT is in a statistical situation, RSS based method has the most handover times as 562 in 1000 times simulations, the handover times of MCGDM is 486, and 
+the proposed algorithm handover times is 464 
+		%the proposed FAHP based algorithm has less times as 464
+ due to handover threshold. 
+The handover times decrease 17.4\% and 4.5\% compared to RSS based method and MCGDM based algorithm, respectively.
+	% in 1000 times of network variation 
+	% The handover condition triggers by networks change. 
+To verify the mobility  management performance,		% of our algorithm,
+ we also plot the handover times when MMT moves at different velocities as $2\;\rm m/s$,  $5\;\rm m/s$, $10 \; \rm m/s$ and $15\; \rm m/s$.
+%As can be seen in Fig. \ref{fig:handovernumber}, in statistical situation, RSS based method handover the most times as 562 in 1000 times simulations. 
+%The handover times of MCGDM is 486, and proposed FAHP based method has less times as 464 due to handover threshold. 
+From dotted lines in Fig.~\ref{fig:handovernumber}, we can see that as moving velocity increases, the handover times of the proposed algorithm decrease significantly due to the increasing handover threshold. 
+When moving velocity reaches $10\;\rm m/s$, handover times are limited below 100 thus ping-pong effect is avoided efficaciously.
+As moving velocity continues increasing, handover threshold tends to grow slowly to maintain the probability to search better connections.
+ 
+
+\begin{comment}[htbp!]
+	\centering
+	\includegraphics[width=0.45\textwidth%,height=0.2\textwidth
+	]{figures/netscore3.eps}
+	\caption{Network utility score versus simulation times.}\label{fig:netu}
+	\vspace{-1em}
+\end{comment}
+
+%Set the MMT moves at the speed of $ v = 2\;\rm m/s$, we plot the selected network synthetic utility score  $S_t$ of mentioned algorithms in Fig. \ref{fig:netu}.
+			% and the result is smoothed with exponentially weighted averages.
+			%As can be seen in Fig. \ref{fig:netu}, 
+			%the network utility score has drastic fluctuation along with networks change.
+%Compared to MCDGM and RSS based method, the network utility score of proposed algorithm is relatively higher and 
+%more stable when network varies, this is because proposed method takes into account more attributes such as RSS and jitter  thus makes a more comprehensive decision. 
+
+
+
+%As can be seen in Fig. \ref{fig:handovernumber} and Fig. \ref{fig:netu},  
+%RSS based method handover the most times and the network utility has drastic fluctuation along with WLAN and LTE.
+% RSS based method handover 520 times in 1000 times simulations, and the network utility has drastic fluctuation along with WLAN and LTE which sometimes leads to awful user experience.
+%Compared to MCDGM, the network utility score of proposed algorithm is relatively higher and 
+%more stable when network varies, this is because proposed method takes into account more attributes such as RSS and jitter  thus get more appropriate decision. 
+%In statistical situation, MCDGM's handover count is 486 times in 1000 times simulation, proposed FAHP based method has less times as 464 due to handover threshold. 
+%As moving velocity increases, the handover count of the proposed algorithm decreases significantly. When moving velocity reaches $10\;\rm m/s$, handover count is limited below 100 times thus ping-pang effect is avoided efficaciously. 
+%When moving velocity continues increasing, the handover count maintains at a certain non-zero level for searching better connections.
+%In SDN architecture, network control plane can obtain more comprehensive information from both mobile MMT and networks, this promotes a more rational network assessment and selection scheme. 
+
+
+\begin{comment}
+	conRSS based method always tends to connect to WLAN and handover count is also limited, but the network utility has drastic fluctuation along with WLAN and sometimes leads to awful user experience.
+	
+	The network utility score of proposed algorithm is relative higher and 
+	more stable when network varies compared to MCDGM, this is because proposed method takes more attribute such as RSS and jitter into consideration thus get more appropriate decision. 
+	In statical situation, MCDGM's handover count is 498 times in 1000 times simulation, proposed FAHP based method has less times as 448 due to handover threshold. 
+	As moving velocity increases, the handover count of proposed algorithm decreases significantly. When moving velocity reaches $15\;m/s$, handover count is limited below 100 times so ping-pang effect is avoided efficaciously. In SDN architecture, network control plane can obtain more comprehensive data from both mobile MMT and networks, this promotes a more rational network assesment and selection scheme. tent...
+\end{comment}
+
+
+\begin{comment}
+we simulate 1000 times network variation for a MMT to execute network selection algorithm.
+We compared our proposed algorithm with MMT network selection algorithm in ~\cite{MCGDM} and RSS based algorithm. The result is shown as
+follows.     Fig\ref{fig:selectedprob}.
+
+
+%%%   设置  service priority 1 3 6   运行的速度为  0 5 10 15
+From Fig\ref{fig:selectedprob} we can see that proposed algorithm ......
+  
+ 
+Then to show the efficiency in handover number of proposed algorithm  
+\end{comment}
+ \begin{figure}[htbp!]
+ 	\centering
+ 	\includegraphics[width=0.3\textwidth,height=0.13\textwidth,
+ 	bb = 30 45 600 300
+ 	]{figures/motion.pdf}
+ 	\caption{The simulation scenario of seamless handover mechanism.}\label{fig:LTE-WLAN}
+ 	\vspace{-1em}
+ \end{figure}
+ 
+
+ 
+\subsection{Seamless Handover Mechanism}
+%%  如何 进行变量的扫描   原文使用的是 不同的速度与方向   加载 选择网络的算法
+
+In Mininet, we set up an LTE and a WLAN network as Fig.~\ref{fig:LTE-WLAN} shows, in which the LTE base station is located at (0,0), the coverage radius is 1800~$\rm m$, the access point of WLAN is located at (1950,0) and the coverage radius is 300~$\rm m$.
+Assume that an MMT moves from (1600,0) to (1900,0) at the speed of~$5\;\rm m/s$. During the moving process, the MMT uses MPTCP. 
+		%The MMT first associates to LTE through cellular interface and  when the MMT approaches to the edge of LTE, the connection triggers handover conditions and SDN control plane selects WLAN as  target network to handover. 
+		%Then MMT establish an additioinal connection to WLAN on WiFi interface and send data through both subflows simultaneously. As MMT moves out of TLE's coverage range, the cellular subflow would fail and the MMT communicates to server through qualified WLAN. 
+The throughput is measured by {\it ifstat} tool. 
+
+\begin{comment}
+	\centering
+	\includegraphics[width=0.45\textwidth,height=0.4\textwidth]{figures/Fig_3.eps}
+	\caption{MPTCP based seamless handover.}\label{fig:seamless0}
+	\vspace{-1em}
+	\end{figure}
+\end{comment}
+\begin{figure}[htbp!]
+	\centering
+	\subfigure[Throughput of MPTCP subflows]{
+		\label{fig:mptcp}
+		\includegraphics[width=2.8 in,height=0.9 in]{figures/Fig3a.eps}}
+	\subfigure[Throughput of dataflows]{
+		\label{fig:contrast}
+		\includegraphics[width=2.8 in,height=1 in]{figures/Fig3b.eps}}
+	\caption{MPTCP based seamless handover.}
+	\label{fig:seamless}
+\end{figure}
+The throughput of each MPTCP subflow during handover process is shown in  Fig. \ref{fig:mptcp}. 
+As Fig.~\ref{fig:mptcp} shows, the MMT can transmit data through both LTE and WLAN subflows using simultaneous policy in the common area of LTE and WLAN.
+The throughputs of subflows have relative violent fluctuation caused by MPTCP interface adjustment.
+%From Fig.~\ref{fig:mptcp}, we can see that the throughputs of subflows have relative violent fluctuation when crossing the network edge and fail a subflow.
+%This delay is caused by MPTCP interface adjustment.
+In Fig.~\ref{fig:contrast} we compare MPTCP based handover mechanism to traditional methods which only uses one interface.
+The turquoise line and orange line represent the dataflow throughputs of LTE and WLAN using one interface, respectively.
+The dotted line represents total dataflow throughput using MPTCP.
+As Fig.~\ref{fig:contrast} shows, using one interface has an inevitable break of connection to re-establish link in heterogeneous networks.
+While applying MPTCP mechanism maintains the throughput of subflows during handover with two interfaces simultaneously transmitting data. This ensures a true seamless handover and increases throughput capacity.
+
+
+
+%%%		无缝切换 的说明		  
+%%%		设计 一个 场景图 出来
+
+
+\section{Conclusion}
+In this paper, we have proposed a seamless handover method in SDN based HWN.
+The SDN control plane is deployed to periodically collect real-time network attributes and user mobility information.
+In network selection stage, we use FAHP to quantize network attribute weights with fuzzy relation and consider user preferences in network selection.
+In the handover execution stage, we use MPTCP to %support seamless handover.
+maintain at least one subflow connected to the network. 
+Simulation results show that the proposed method makes a comprehensive decision on network selection, decreases
+up to 17.4\% and 4.5\% handover times compared to RRS based and MCGDM based algorithm. The proposed method avoids ping-pong effect and achieves seamless handover thus improving
+user experience.
+
+% yields significant reduction on handover numbers
+
+
+%In terms of handover times, the proposed method achieves up to 17.4\% and 4.5\% reduction compared to received signal strength based algorithm and fuzzy multiple criteria group decision making based algorithm.
+
+%MPTCP mechanisms can be formulated for more extensive application.
+ 
+		%The proposed method also maintains at least one subflow during the handover process and .
+		%Simulation result shows that our method can realize seamless handover which considers both service requirements and user preferences and select a network with more balance probability.
+		%Enabled by mobility management function, SDN control plane can perceive user mobility efficiently thus avoid ping-pang effect. 
+		%MPTCP increases the MMT data throughput and improve  service quality.
+
+
+
+
+%\section*{Acknowledgment}
+%\color{red}{ Need to be clarified?}
+%\color{black}
+%\section*{References}
+
+\def\baselinestretch{0.85}
+\begin{thebibliography}{00}
+	
+\bibitem{MECsurvey} N. Abbas, Y. Zhang, A. Taherkordi and T. Skeie, ``Mobile Edge Computing: A Survey," in \emph{IEEE Internet of Things Journal}, vol. 5, no. 1, pp. 450-465, Feb. 2018.
+
+\bibitem{Cacheinsky} M. Chen, M. Mozaffari, W. Saad, C. Yin, M. Debbah and C. S. Hong, ``Caching in the Sky: Proactive Deployment of Cache-Enabled Unmanned Aerial Vehicles for Optimized Quality-of-Experience," in \emph{IEEE Journal on Selected Areas in Communications}, vol. 35, no. 5, pp. 1046-1061, May 2017.
+
+
+
+\bibitem{het}	P. Mahajan and P. Zaheeruddin, ``Review Paper on Optimization of Handover Parameter in Heterogeneous Networks," \emph{2018 3rd International Innovative Applications of Computational Intelligence on Power, Energy and Controls with their Impact on Humanity (CIPECH)}, Ghaziabad, India, 2018, pp. 1-5.
+
+\bibitem{tutorial}  M. Chen, U. Challita, W. Saad, C. Yin, and M. Debbah, “Artificial Neural Networks-Based Machine Learning for Wireless Networks: A Tutorial”, \emph{IEEE Communications Surveys and Tutorials}, to appear, 2019. 
+
+\bibitem{MCGDM}O. E. Falowo and H. A. Chan, ``Multiple-call handover decisions using fuzzy MCGDM in heterogeneous wireless networks," \emph{2011 - MILCOM 2011 Military Communications Conference}, Baltimore, MD, 2011, pp. 1909-1914.
+
+
+\bibitem{Utility-GDM}
+R. Luo, S. Zhao and Q. Zhu, ``Network selection algorithm based on group decision making for heterogeneous wireless networks," \emph{2017 IEEE 9th International Conference on Communication Software and Networks (ICCSN)}, Guangzhou, 2017, pp. 397-402.
+
+\bibitem{select}  H. Yu, Y. Ma and J. Yu,  ``Network Selection Algorithm for Multiservice Multimode Terminals in Heterogeneous Wireless Networks," in \emph{IEEE Access}, vol. 7, pp. 46240-46260, 2019.
+
+\bibitem{2interface}
+J. He, G. Zhang, Z. Li and G. Xie, ``Throughput Guaranteed Handoff for SDN-Based WLAN in Distinctive Signal Coverage," \emph{2017 IEEE Wireless Communications and Networking Conference (WCNC)}, San Francisco, CA, 2017, pp. 1-6.
+
+\bibitem{speedup}  J. Lee and Y. Yoo, ``Handover cell selection using user mobility information in a 5G SDN-based network," \emph{2017 Ninth International Conference on Ubiquitous and Future Networks (ICUFN)}, Milan, 2017, pp. 697-702.
+
+\bibitem{acmmptcp}  Paasch, Christoph, et al. ``Exploring mobile/WiFi handover with multipath TCP,” \emph{Proceedings of the 2012 ACM SIGCOMM workshop on Cellular networks: operations, challenges, and future design}. Helsinki, Finland, 2012, pp. 31-36.
+
+\bibitem{phone} Q. D. Coninck and O. Bonaventure,``Tuning Multipath TCP for Interactive Applications on Smartphones," \emph{2018 IFIP Networking Conference (IFIP Networking) and Workshops}, Zurich, Switzerland, 2018, pp. 1-9.
+
+
+\bibitem{MPTCP} H. Sinky, B. Hamdaoui and M. Guizani, ``Seamless Handoffs in Wireless HetNets: Transport-Layer Challenges and Multi-Path TCP Solutions with Cross-Layer Awareness," in \emph{IEEE Network}, vol. 33, no. 2, pp. 195-201, March/April 2019.
+
+\bibitem{Tsinghua} D. Yao, X. Su, B. Liu and J. Zeng, ``A mobile handover mechanism based on fuzzy logic and MPTCP protocol under SDN architecture*," \emph{2018 18th International Symposium on Communications and Information Technologies (ISCIT)}, Bangkok, 2018, pp. 141-146.
+
+
+\bibitem{3GPP} %3GPP, "Technical specification group services and system aspects; 
+5G, ``System Architecture for the 5G System,"
+3GPP TS 23.501 ver.15.4.0 Release 15, Mar. 2019.
+
+%System Architecture for the 5G System," TS 23.501 ver.15.4.0, Oct. 2018.
+
+\bibitem{FAHP} P. J. M. van Laarhoven and W. Pedrycz, ``A fuzzy extension of Saaty’s priority theory," \emph{Fuzzy Set Syst}., vol. 11, nos. 1-3, pp. 229-241, 1983.
+	
+%\bibitem{RSSI} https://wiki.teltonika.lt/view/RSSI
+\bibitem{RSSList} R. K. Mishra and R. Agrahari, ``RSS Characterization in Wireless Heterogeneous Network," \emph{2019 11th International Conference on Communication Systems \& Networks (COMSNETS)}, Bengaluru, India, 2019, pp. 583-588.
+
+
+
+%\bibitem{select12}J. Chen, Y. Wang, Y. Li, and E. Wang, "QoE-aware intelligent vertical handoff scheme over heterogeneous wireless access networks," IEEE Access, vol. 6, pp. 38285-38293, 2018.
+
+
+%\bibitem{select13} N. Ul Hasan, W. Ejaz, N. Ejaz, H. S. Kim, A. Anpalagan and M. Jo, "Network Selection and Channel Allocation for Spectrum Sharing in 5G Heterogeneous Networks," in IEEE Access, vol. 4, pp. 980-992, 2016.
+
+\begin{comment}
+
+\bibitem{seamlesshandover} H. Qu, Y. Zhang, J. Zhao, G. Ren and W. Wang, "A hybrid handover forecasting mechanism based on fuzzy forecasting model in cellular networks," in China Communications, vol. 15, no. 6, pp. 84-97, June 2018.
+
+
+
+\bibitem{SDNadv1} J. Lee and Y. Yoo, "Handover cell selection using user mobility information in a 5G SDN-based network," 2017 Ninth International Conference on Ubiquitous and Future Networks (ICUFN), Milan, 2017, pp. 697-702.
+
+\bibitem{SDNadv2} J. Rizkallah and N. Akkari, "SDN-based vertical handover decision scheme for 5G networks," 2018 IEEE Middle East and North Africa Communications Conference (MENACOMM), Jounieh, 2018, pp. 1-6.
+
+
+
+
+\end{comment}
+
+\end{thebibliography}
+
+
+\vspace{12pt}
+	
+	\begin{comment}	
+		\color{red}
+		IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
+	\end{comment}
+
+
+\end{document}
