@@ -1,4 +1,4 @@
-## Paper merge
+## Paper code mergence
 Fixed and Mobile Network convergance journal
 
 Coordinate by thn wt zyj
